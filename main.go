@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"math/rand"
 	"os"
 
 	"github.com/chewxy/math32"
@@ -37,7 +38,7 @@ func drawPixel(col Vec3) {
 }
 
 func main() {
-	nx, ny := 200, 100
+	nx, ny, ns := 200, 100, 100
 
 	fmt.Fprintf(os.Stdout, "P3\n%d %d\n255\n", nx, ny)
 
@@ -55,11 +56,15 @@ func main() {
 
 	for j := ny - 1; j >= 0; j-- {
 		for i := 0; i < nx; i++ {
-			u := float32(i) / float32(nx)
-			v := float32(j) / float32(ny)
-			r := cam.GetRay(u, v)
-			// p = r.PointAtParameter(2.0) // ?
-			col := color(r, world)
+			col := Vec3{0.0, 0.0, 0.0}
+			for s := 0; s < ns; s++ {
+				u := (float32(i) + float32(rand.Float64())) / float32(nx)
+				v := (float32(j) + float32(rand.Float64())) / float32(ny)
+				r := cam.GetRay(u, v)
+				// p := r.PointAtParameter(2.0) // ?
+				col = col.Add(color(r, world))
+			}
+			col = col.ScalarDivide(float32(ns))
 			drawPixel(col)
 		}
 	}
