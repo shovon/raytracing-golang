@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 
 	"github.com/chewxy/math32"
@@ -40,39 +41,41 @@ func main() {
 
 	fmt.Fprintf(os.Stdout, "P3\n%d %d\n255\n", nx, ny)
 
-	lowerLeftCorner := Vec3{-2.0, -1.0, -1.0}
-	horizontal := Vec3{4.0, 0.0, 0.0}
-	vertical := Vec3{0.0, 2.0, 0.0}
-	origin := Vec3{0.0, 0.0, 0.0}
+	// lowerLeftCorner := Vec3{-2.0, -1.0, -1.0}
+	// horizontal := Vec3{4.0, 0.0, 0.0}
+	// vertical := Vec3{0.0, 2.0, 0.0}
+	// origin := Vec3{0.0, 0.0, 0.0}
+
+	hitable := []Hitable{
+		Sphere{Vec3{0.0, 0.0, -1.0}, 0.5},
+		Sphere{Vec3{0.0, -100.5, -1.0}, 100.0},
+	}
+	world := HitableList{hitable}
+	cam := NewCamera()
 
 	for j := ny - 1; j >= 0; j-- {
 		for i := 0; i < nx; i++ {
 			u := float32(i) / float32(nx)
 			v := float32(j) / float32(ny)
-			r := Ray{
-				origin,
-				lowerLeftCorner.
-					Add(horizontal.ScalarMultiply(u)).
-					Add(vertical.ScalarMultiply(v)),
-			}
-			col := color(r)
+			r := cam.GetRay(u, v)
+			// p = r.PointAtParameter(2.0) // ?
+			col := color(r, world)
 			drawPixel(col)
 		}
 	}
 }
 
-func color(r Ray) Vec3 {
-	// This is the old code for just a boolean sphere hitting logic.
-	// if didHitSphere(Vec3{0.0, 0.0, -1.0}, 0.5, r) {
-	// 	return Vec3{1.0, 0.0, 0.0}
-	// }
-	t := hitSphere(Vec3{0.0, 0.0, -1.0}, 0.5, r)
-	if t > 0.0 {
-		n := r.PointAtParameter(t).Subtract(Vec3{0.0, 0.0, -1.0})
-		return Vec3{n.X() + 1, n.Y() + 1, n.Z() + 1}.ScalarMultiply(0.5)
+func color(r Ray, world Hitable) Vec3 {
+	var rec HitRecord
+	if world.Hit(r, 0.0, math.MaxFloat32, &rec) {
+		return Vec3{rec.Normal.X() + 1, rec.Normal.Y() + 1, rec.Normal.Z() + 1}.
+			ScalarMultiply(0.5)
 	}
 	unitDirection := r.Direction().Normalized()
-	t = 0.5*unitDirection.Y() + 1.0
+	t := 0.5*unitDirection.Y() + 1.0
 	return Vec3{1.0, 1.0, 1.0}.ScalarMultiply(1.0 - t).
-		Add(Vec3{0.5, 0.7, 1.0}.ScalarMultiply(t))
+		Add(
+			Vec3{0.5, 0.7, 1.0}.
+				ScalarMultiply(t),
+		)
 }
