@@ -47,6 +47,13 @@ func (v Vec3) String() string {
 	return fmt.Sprintf("%f %f %f", v.E0, v.E1, v.E2)
 }
 
+// Assign assigns the value of the supplied vector to the instance
+func (v *Vec3) Assign(v2 Vec3) {
+	v.E0 = v2.E0
+	v.E1 = v2.E1
+	v.E2 = v2.E2
+}
+
 // Add adds each of the two vectors' components, and returns a new vector with
 // the components summed
 func (v Vec3) Add(v2 Vec3) Vec3 {
