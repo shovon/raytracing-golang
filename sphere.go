@@ -4,8 +4,9 @@ import "github.com/chewxy/math32"
 
 // Sphere represents a hitable object that is a sphere
 type Sphere struct {
-	Center Vec3
-	Radius float32
+	Center   Vec3
+	Radius   float32
+	Material Material
 }
 
 // Hit determines whether or not the given ray was hit.
@@ -21,6 +22,7 @@ func (s Sphere) Hit(r Ray, tMin float32, tMax float32, rec *HitRecord) bool {
 			rec.T = temp
 			rec.P = r.PointAtParameter(rec.T)
 			rec.Normal = rec.P.Subtract(s.Center).ScalarDivide(s.Radius)
+			rec.Material = s.Material
 			return true
 		}
 		temp = (-b + math32.Sqrt(b*b-a*c)) / a
@@ -28,6 +30,7 @@ func (s Sphere) Hit(r Ray, tMin float32, tMax float32, rec *HitRecord) bool {
 			rec.T = temp
 			rec.P = r.PointAtParameter(rec.T)
 			rec.Normal = rec.P.Subtract(s.Center).ScalarDivide(s.Radius)
+			rec.Material = s.Material
 			return true
 		}
 	}

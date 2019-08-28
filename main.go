@@ -43,8 +43,10 @@ func main() {
 	fmt.Fprintf(os.Stdout, "P3\n%d %d\n255\n", nx, ny)
 
 	hitable := []Hitable{
-		Sphere{Vec3{0.0, 0.0, -1.0}, 0.5},
-		Sphere{Vec3{0.0, -100.5, -1.0}, 100.0},
+		Sphere{Vec3{0.0, 0.0, -1.0}, 0.5, Lambertian{Vec3{0.8, 0.3, 0.3}}},
+		Sphere{Vec3{0.0, -100.5, -1.0}, 100.0, Lambertian{Vec3{0.8, 0.8, 0.0}}},
+		Sphere{Vec3{1.0, 0.0, -1.0}, 0.5, Metal{Vec3{0.8, 0.6, 0.2}}},
+		Sphere{Vec3{-1.0, 0.0, -1.0}, 0.5, Metal{Vec3{0.8, 0.8, 0.8}}},
 	}
 	world := HitableList{hitable}
 	cam := NewCamera()
@@ -57,7 +59,7 @@ func main() {
 				v := (float32(j) + rand.Float32()) / float32(ny)
 				r := cam.GetRay(u, v)
 				// p := r.PointAtParameter(2.0) // ?
-				col = col.Add(color(r, world))
+				col = col.Add(color(r, world, 0))
 			}
 			col = col.ScalarDivide(float32(ns))
 			drawPixel(Vec3{
@@ -69,22 +71,19 @@ func main() {
 	}
 }
 
-func randomInUnitSphere() Vec3 {
-	for {
-		randVec := Vec3{rand.Float32(), rand.Float32(), rand.Float32()}
-		inCube := randVec.Subtract(Vec3{0.5, 0.5, 0.5}).ScalarMultiply(2.0)
-		if inCube.Length() <= 1.0 {
-			return inCube
-		}
-	}
-}
-
-func color(r Ray, world Hitable) Vec3 {
+func color(r Ray, world Hitable, depth int) Vec3 {
 	var rec HitRecord
 	if world.Hit(r, 0.001, math.MaxFloat32, &rec) {
-		target := rec.P.Add(rec.Normal).Add(randomInUnitSphere())
-		return color(Ray{rec.P, target.Subtract(rec.P)}, world).ScalarMultiply(0.5)
+		var scattered Ray
+		var attenuation Vec3
+		if depth < 50 && rec.Material.Scatter(&r, &rec, &attenuation, &scattered) {
+			return attenuation.Hadamard(color(scattered, world, depth+1))
+		}
+		return Vec3{0.0, 0.0, 0.0}
+		// target := rec.P.Add(rec.Normal).Add(RandomInUnitSphere())
+		// return color(Ray{rec.P, target.Subtract(rec.P)}, world).ScalarMultiply(0.5)
 	}
+
 	unitDirection := r.Direction().Normalized()
 	t := 0.5*unitDirection.Y() + 1.0
 	return Vec3{1.0, 1.0, 1.0}.ScalarMultiply(1.0 - t).
