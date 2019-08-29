@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"time"
 
 	"github.com/chewxy/math32"
 )
@@ -81,8 +82,10 @@ func randomScene() []Hitable {
 }
 
 func main() {
+	rand.Seed(time.Now().UTC().UnixNano())
+
 	// nx, ny, ns := 100, 50, 100
-	nx, ny, ns := 1024, 768, 100
+	nx, ny, ns := 1024, 576, 100
 
 	fmt.Fprintf(os.Stdout, "P3\n%d %d\n255\n", nx, ny)
 
