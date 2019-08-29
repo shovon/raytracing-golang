@@ -1,6 +1,6 @@
 # Ray Tracing in One Weekend in Go
 
-[!Output from ray tracing](https://raw.githubusercontent.com/shovon/raytracing-golang/master/output.png?token=AACFPIHYIGQCGTFSHWRBMHS5M5RKM)
+![Output from ray tracing](https://raw.githubusercontent.com/shovon/raytracing-golang/master/output.png?token=AACFPIHYIGQCGTFSHWRBMHS5M5RKM)
 
 This is a ray tracing implementation in Go.
 
