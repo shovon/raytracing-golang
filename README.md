@@ -16,7 +16,7 @@ go run . > image.ppm
 
 The program outputs portable pixmap format to the console/stdout, and so, the `>` symbol writes the output to a file.
 
-I have not run a benchmark, but I am certain that rendering a whole 1024 by 576 image takes around a half hour on my 2018 i7 MacBook pro. If you want something rendered quicker, change the `nx` and `ny` variables to something smaller than 1024 by 576.
+I have not run a benchmark, but I am certain that rendering a whole 1024 by 576 image takes around a half hour on my 2018 i7 MacBook pro. If you want something rendered quicker, change the `nx` and `ny` variables in `main()`, in `main.go` to something smaller than 1024 by 576 (perhaps 200 and 100, respectively).
 
 ## Known issues
 
