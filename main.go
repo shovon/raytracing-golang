@@ -53,8 +53,14 @@ func main() {
 		// Sphere{Vec3{-r, 0.0, -1.0}, r, Lambertian{Vec3{0.0, 0.0, 1.0}}},
 		// Sphere{Vec3{r, 0.0, -1}, r, Lambertian{Vec3{1.0, 0.0, 0.0}}},
 	}
+
 	world := HitableList{hitable}
-	cam := NewCamera(Vec3{-2, 2, 1}, Vec3{0, 0, -1}, Vec3{0, 1, 0}, 45, float32(nx)/float32(ny))
+
+	lookFrom := Vec3{3, 3, 2}
+	lookAt := Vec3{0, 0, -1}
+	distToFocus := (lookFrom.Subtract(lookAt)).Length()
+	aparture := float32(2.0)
+	cam := NewCamera(lookFrom, lookAt, Vec3{0, 1, 0}, 20, float32(nx)/float32(ny), aparture, distToFocus)
 
 	for j := ny - 1; j >= 0; j-- {
 		for i := 0; i < nx; i++ {
