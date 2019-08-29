@@ -37,29 +37,75 @@ func drawPixel(col Vec3) {
 	fmt.Fprintf(os.Stdout, "%d %d %d\n", ir, ig, ib)
 }
 
+func randomScene() []Hitable {
+	list := make([]Hitable, 0, 10)
+	list = append(list, Sphere{Vec3{0, -1000, 0}, 1000, Lambertian{Vec3{0.5, 0.5, 0.5}}})
+	for a := -11; a < 11; a++ {
+		for b := -11; b < 11; b++ {
+			chooseMaterial := rand.Float32()
+			center := Vec3{float32(a) + (0.9 * rand.Float32()), 0.2, float32(b) + (0.9 * rand.Float32())}
+			if center.Add(Vec3{0, 0.8, 0}).Subtract(Vec3{0, 1, 0}).Length() <= 1 {
+				continue
+			}
+			if center.Subtract(Vec3{4, 0.2, 0}).Length() > 0.9 {
+				if chooseMaterial < 0.8 {
+					list = append(list, Sphere{center, 0.2, Lambertian{Vec3{rand.Float32(), rand.Float32(), rand.Float32()}}})
+				} else if chooseMaterial < 0.95 {
+					list = append(
+						list,
+						Sphere{
+							center,
+							0.2,
+							Metal{
+								Vec3{
+									0.5 * (1 + rand.Float32()),
+									0.5 * (1 + rand.Float32()),
+									0.5 * (1 + rand.Float32()),
+								},
+								0.5 * (1 + rand.Float32()),
+							},
+						},
+					)
+				} else {
+					list = append(list, Sphere{center, 0.2, Dialectric{1.5}})
+				}
+			}
+		}
+	}
+
+	list = append(list, Sphere{Vec3{0, 1, 0}, 1.0, Dialectric{1.5}})
+	list = append(list, Sphere{Vec3{-4, 1, 0}, 1.0, Lambertian{Vec3{0.4, 0.2, 0.1}}})
+	list = append(list, Sphere{Vec3{4, 1, 0}, 1.0, Metal{Vec3{0.7, 0.6, 0.5}, 0.0}})
+
+	return list
+}
+
 func main() {
-	nx, ny, ns := 800, 400, 100
+	// nx, ny, ns := 100, 50, 100
+	nx, ny, ns := 1024, 768, 100
 
 	fmt.Fprintf(os.Stdout, "P3\n%d %d\n255\n", nx, ny)
 
 	// r := math32.Cos(math32.Pi / 4)
 
-	hitable := []Hitable{
-		Sphere{Vec3{0.0, 0.0, -1.0}, 0.5, Lambertian{Vec3{0.8, 0.3, 0.3}}},
-		Sphere{Vec3{0.0, -100.5, -1.0}, 100.0, Lambertian{Vec3{0.8, 0.8, 0.0}}},
-		Sphere{Vec3{1.0, 0.0, -1.0}, 0.5, Metal{Vec3{0.8, 0.6, 0.2}, 0.01}},
-		Sphere{Vec3{-1.0, 0.0, -1.0}, 0.5, Dialectric{1.5}},
+	// hitable := []Hitable{
+	// 	Sphere{Vec3{0.0, 0.0, -1.0}, 0.5, Lambertian{Vec3{0.8, 0.3, 0.3}}},
+	// 	Sphere{Vec3{0.0, -100.5, -1.0}, 100.0, Lambertian{Vec3{0.8, 0.8, 0.0}}},
+	// 	Sphere{Vec3{1.0, 0.0, -1.0}, 0.5, Metal{Vec3{0.8, 0.6, 0.2}, 0.01}},
+	// 	Sphere{Vec3{-1.0, 0.0, -1.0}, 0.5, Dialectric{1.5}},
 
-		// Sphere{Vec3{-r, 0.0, -1.0}, r, Lambertian{Vec3{0.0, 0.0, 1.0}}},
-		// Sphere{Vec3{r, 0.0, -1}, r, Lambertian{Vec3{1.0, 0.0, 0.0}}},
-	}
+	// 	// Sphere{Vec3{-r, 0.0, -1.0}, r, Lambertian{Vec3{0.0, 0.0, 1.0}}},
+	// 	// Sphere{Vec3{r, 0.0, -1}, r, Lambertian{Vec3{1.0, 0.0, 0.0}}},
+	// }
+
+	hitable := randomScene()
 
 	world := HitableList{hitable}
 
-	lookFrom := Vec3{3, 3, 2}
-	lookAt := Vec3{0, 0, -1}
+	lookFrom := Vec3{12, 2, 4}
+	lookAt := Vec3{0, 1, 0}
 	distToFocus := (lookFrom.Subtract(lookAt)).Length()
-	aparture := float32(2.0)
+	aparture := float32(0.2)
 	cam := NewCamera(lookFrom, lookAt, Vec3{0, 1, 0}, 20, float32(nx)/float32(ny), aparture, distToFocus)
 
 	for j := ny - 1; j >= 0; j-- {
