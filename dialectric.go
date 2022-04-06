@@ -34,6 +34,7 @@ func (d Dialectric) Scatter(
 		reflectProb = Schlick(cosine, d.RefractionIndex)
 	} else {
 		scattered.Assign(Ray{rec.P, reflected})
+		reflectProb = 1
 	}
 	if rand.Float32() < reflectProb {
 		scattered.Assign(Ray{rec.P, reflected})

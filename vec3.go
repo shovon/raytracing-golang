@@ -105,7 +105,7 @@ func (v Vec3) Dot(v2 Vec3) float32 {
 func (v Vec3) Cross(v2 Vec3) Vec3 {
 	return Vec3{
 		v.E1*v2.E2 - v.E2*v2.E1,
-		v.E2*v2.E0 - v.E0*v2.E2,
+		-(v.E0*v2.E2 - v.E2*v2.E0),
 		v.E0*v2.E1 - v.E1*v2.E0,
 	}
 }
